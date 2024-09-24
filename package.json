@@ -1,0 +1,15 @@
+{
+  "name": "rollup-plugin-filemeta",
+  "version": "0.1.0",
+  "description": "Build-time injection of file information with Rollup",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "rollup",
+    "plugin"
+  ],
+  "author": "Cameron Martin",
+  "license": "MIT"
+}
