@@ -3,7 +3,7 @@ import type {Plugin} from 'rollup';
 import type {ImportDeclaration, CallExpression} from 'acorn';
 import MagicString from 'magic-string';
 
-const name = 'rollup-filemeta';
+const name = 'rollup-plugin-filemeta';
 
 const macros = ['filename', 'dirname'] as const;
 const macroImports = new Set(macros.map((m) => `${name}/${m}`));
@@ -12,8 +12,13 @@ type Macro = `${typeof name}/${'filename' | 'dirname'}`;
 
 type Resolver = (id: string) => string;
 
-const resolveFilename: Resolver = (id) => id.slice(id.lastIndexOf('/'));
-const resolveDirname: Resolver = (id) => id.slice(0, id.lastIndexOf('/'));
+const quote = (s: string, style: "single" | "double" = "single"): string => {
+	const q = style === "single" ? `'` : `"`;
+	return q + s + q;
+}
+
+const resolveFilename: Resolver = (id) => quote(id.slice(id.lastIndexOf('/')+1));
+const resolveDirname: Resolver = (id) => quote(id.slice(0, id.lastIndexOf('/')+1));
 
 const resolvers: Record<Macro, Resolver> = {
 	[`${name}/filename`]: resolveFilename,
@@ -120,7 +125,7 @@ const plugin = (): Plugin => ({
 			}
 		}
 
-		return {code: newCode.toString(), ast: program, map: newCode.generateMap()};
+		return {code: newCode.toString(), map: newCode.generateMap()};
 	},
 });
 
