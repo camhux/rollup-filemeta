@@ -6,9 +6,9 @@ import MagicString from "magic-string";
 const name = "rollup-plugin-filemeta";
 
 const macros = ["filename", "dirname"] as const;
-const macroImports = new Set(macros.map((m) => `${name}/${m}`));
+const macroImports = new Set(macros.map((m) => `${name}/${m}.ts`));
 
-type Macro = `${typeof name}/${"filename" | "dirname"}`;
+type Macro = `${typeof name}/${"filename" | "dirname"}.ts`;
 
 type Resolver = (id: string) => string;
 
@@ -23,8 +23,8 @@ const resolveDirname: Resolver = (id) =>
   quote(id.slice(0, id.lastIndexOf("/") + 1));
 
 const resolvers: Record<Macro, Resolver> = {
-  [`${name}/filename`]: resolveFilename,
-  [`${name}/dirname`]: resolveDirname,
+  [`${name}/filename.ts`]: resolveFilename,
+  [`${name}/dirname.ts`]: resolveDirname,
 };
 
 // TODO: options for root/full path stuff, include/exclude
