@@ -9,6 +9,6 @@ insert_final_newline = true
 [*.{ts,js}]
 indent_style = tab
 
-[{package,tsconfig}.json]
+[{package,tsconfig,deno}.json]
 indent_style = space
 indent_size = 2
