@@ -103,8 +103,33 @@ console.log('fixtures/simple-both.js');`;
 	assertEquals(code.output[0].code, expectedCode);
 });
 
-// TODO: anything worth doing here?
-Deno.test.ignore("forgotten plugin", async () => {
+Deno.test("error case: non-default import of macro", async () => {
+	const source = path.resolve(
+		import.meta.dirname ?? "./test",
+		"fixtures/error-non-default.js",
+	);
+
+	await assertRejects(async () =>
+		await rollup({
+			input: source,
+			plugins: [plugin()],
+		}), "rollup-filemeta");
+});
+
+Deno.test("error case: invalid member access from default import specifier", async () => {
+	const source = path.resolve(
+		import.meta.dirname ?? "./test",
+		"fixtures/error-member-access.js",
+	);
+
+	await assertRejects(async () =>
+		await rollup({
+			input: source,
+			plugins: [plugin()],
+		}), "rollup-filemeta");
+});
+
+Deno.test("forgotten plugin", async () => {
 	const source = path.resolve(
 		import.meta.dirname ?? "./test",
 		"fixtures/simple-filename.js",
@@ -112,7 +137,5 @@ Deno.test.ignore("forgotten plugin", async () => {
 
 	const rejected = assertRejects(() => import(source));
 
-	assertIsError(await rejected, Error, /UNREACHABLE/);
+	assertIsError(await rejected);
 });
-
-// TODO: test for improper member expression on imported object

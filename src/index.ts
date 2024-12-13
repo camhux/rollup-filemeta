@@ -87,9 +87,12 @@ const plugin = (opts?: PluginOptions): Plugin => ({
 						return null;
 					}
 
-					if (node.specifiers.length !== 1) {
+					if (
+						node.specifiers.length !== 1 ||
+						node.specifiers[0].type !== "ImportDefaultSpecifier"
+					) {
 						error(
-							"rollup-filemeta: macro was not imported as a default specifier",
+							"rollup-filemeta: macro was not imported as a single default specifier",
 						);
 					}
 
