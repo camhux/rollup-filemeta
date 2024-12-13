@@ -2,7 +2,6 @@ import * as path from "node:path";
 import { rollup } from "rollup";
 import plugin from "rollup-plugin-filemeta/index.ts";
 import { assertEquals, assertIsError, assertRejects } from "@std/assert";
-import exp from "node:constants";
 
 Deno.test("simple filename transform", async () => {
 	const source = path.resolve(
