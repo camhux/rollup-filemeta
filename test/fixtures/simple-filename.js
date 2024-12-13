@@ -1,3 +1,3 @@
-import FILENAME from "rollup-plugin-filemeta/filename.ts";
+import meta from "rollup-filemeta";
 
-console.log(FILENAME());
+console.log(meta.filename);

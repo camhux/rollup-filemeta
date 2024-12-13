@@ -1,14 +1,11 @@
 import { simple } from "acorn-walk";
 import type { Plugin } from "rollup";
-import type { CallExpression, ImportDeclaration } from "acorn";
+import type { Identifier, ImportDeclaration, MemberExpression } from "acorn";
 import MagicString from "magic-string";
 
-const name = "rollup-plugin-filemeta";
+const virtualModule = "rollup-filemeta";
 
-const macros = ["filename", "dirname"] as const;
-const macroImports = new Set(macros.map((m) => `${name}/${m}.ts`));
-
-type Macro = `${typeof name}/${"filename" | "dirname"}.ts`;
+type Macro = "filename" | "dirname";
 
 type Resolver = (id: string) => string;
 
@@ -17,23 +14,26 @@ const quote = (s: string, style: "single" | "double" = "single"): string => {
 	return q + s + q;
 };
 
+// TODO: add support for custom or truncated bases.
+// We can use Vite's/Rollup's interpolated __dirname in this file to help set the base,
+// which will be set based on the location of the consuming project's config.
 const resolveFilename: Resolver = (id) =>
-	quote(id.slice(id.lastIndexOf("/") + 1));
+	quote(id);
 const resolveDirname: Resolver = (id) =>
 	quote(id.slice(0, id.lastIndexOf("/") + 1));
 
 const resolvers: Record<Macro, Resolver> = {
-	[`${name}/filename.ts`]: resolveFilename,
-	[`${name}/dirname.ts`]: resolveDirname,
+	["filename"]: resolveFilename,
+	["dirname"]: resolveDirname,
 };
 
 // TODO: options for root/full path stuff, include/exclude
 const plugin = (): Plugin => ({
-	name,
+	name: "rollup-plugin-filemeta",
 
 	resolveId(source) {
-		if (macroImports.has(source)) {
-			return { id: source, external: true };
+		if (source === virtualModule) {
+			return { id: `\0${source}`, external: true };
 		}
 
 		return null;
@@ -41,23 +41,20 @@ const plugin = (): Plugin => ({
 
 	transform(code, id) {
 		// TODO: blunt check; would a regex for a macro import path be worth it?
-		if (!code.includes(name)) {
+		if (!code.includes(virtualModule)) {
 			return null;
 		}
 
 		const program = this.parse(code);
-
-		type LocalName = string;
+		interface Usage {
+			node: MemberExpression,
+			key: Macro
+		}
 		const state: {
-			usages: Map<
-				LocalName,
-				{
-					macro: Macro;
-					declaration: ImportDeclaration;
-					calls: CallExpression[];
-				}
-			>;
-		} = { usages: new Map() };
+			declaration: ImportDeclaration | null;
+			localName: string;
+			usages: Usage[];
+		} = { declaration: null, localName: "", usages: [] };
 
 		simple(
 			program,
@@ -67,13 +64,12 @@ const plugin = (): Plugin => ({
 					if (
 						!(
 							typeof node.source.value === "string" &&
-							macroImports.has(node.source.value)
+							virtualModule === node.source.value
 						)
 					) {
 						return null;
 					}
 
-					// Each macro file should be imported as a default specifier
 					if (node.specifiers.length !== 1) {
 						throw new Error(
 							"rollup-filemeta: macro was not imported as a default specifier",
@@ -82,53 +78,41 @@ const plugin = (): Plugin => ({
 
 					const localName = node.specifiers[0].local.name;
 
-					state.usages.set(localName, {
-						// TODO: just calculate and provide the replacement avlue right here? we should know it
-						macro: node.source.value as Macro,
-						declaration: node,
-						calls: [],
-					});
+					state.localName = localName;
+					state.declaration = node;
 				},
 				// eslint-disable-next-line @typescript-eslint/naming-convention
-				CallExpression(node, state) {
+				MemberExpression(node, state) {
+					const identifier: Identifier = node.object as Identifier;
 					if (
-						node.callee.type !== "Identifier" ||
-						!state.usages.has(node.callee.name)
+						!(identifier.name && identifier.name === state.localName)
 					) {
 						return null;
 					}
 
-					const entry = state.usages.get(node.callee.name);
-
-					if (!entry) {
-						throw new Error(
-							`rollup-filemeta: found call for macro-sourced identifier ${node.callee.name}, but found no entry in state.usages. This indicates a bug in rollup-filemeta.`,
-						);
+					const property: Identifier = node.property as Identifier;
+					if (!(property.name && ["filename", "dirname"].includes(property.name))) {
+						throw new Error(`rollup-plugin-filemeta: unexpected access on virtual module export.` +
+							`Please ensure you only access the default export object with one of the expected identifiers ("filename", "dirname").`
+						)
 					}
 
-					entry.calls.push(node);
+					state.usages.push({node, key: property.name as Macro});
 				},
 			},
 			undefined,
 			state,
 		);
 
-		let hasAnyUsageCalls = false;
-		for (const { calls } of state.usages.values()) {
-			hasAnyUsageCalls ||= calls.length > 0;
-		}
-
-		if (state.usages.size === 0 || !hasAnyUsageCalls) {
+		if (!state.declaration || !state.usages.length) {
 			return null;
 		}
 
 		const newCode = new MagicString(code);
-		for (const usage of state.usages.values()) {
-			const { macro, declaration } = usage;
-			newCode.remove(declaration.start, declaration.end);
-			for (const call of usage.calls) {
-				newCode.update(call.start, call.end, resolvers[macro](id));
-			}
+		newCode.remove(state.declaration.start, state.declaration.end);
+		for (const usage of state.usages) {
+			const { key, node } = usage;
+			newCode.update(node.start, node.end, resolvers[key](id));
 		}
 
 		return { code: newCode.toString(), map: newCode.generateMap() };

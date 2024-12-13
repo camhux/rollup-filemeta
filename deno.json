@@ -4,7 +4,8 @@
 	},
 	"imports": {
 		"@std/assert": "jsr:@std/assert@1",
-		"rollup-plugin-filemeta/": "./src/"
+		"rollup-plugin-filemeta/": "./src/",
+		"rollup-filemeta": "./filemeta.d.ts"
 	},
 	"compilerOptions": {
 		"strict": true,

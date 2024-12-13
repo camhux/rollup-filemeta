@@ -1,3 +1,3 @@
-import DIRNAME from "rollup-plugin-filemeta/dirname.ts";
+import meta from "rollup-filemeta";
 
-console.log(DIRNAME());
+console.log(meta.dirname);

@@ -1,18 +1,17 @@
-import DIRNAME from "rollup-plugin-filemeta/dirname.ts";
-import FILENAME from "rollup-plugin-filemeta/filename.ts";
+import meta from "rollup-filemeta";
 
 function consume(s) {
 	console.log(s);
 }
 
-consume(DIRNAME());
+consume(meta.dirname);
 
-consume(DIRNAME());
+consume(meta.dirname);
 
-consume(FILENAME());
+consume(meta.filename);
 
-consume(FILENAME());
+consume(meta.filename);
 
-consume(DIRNAME());
+consume(meta.dirname);
 
-consume(FILENAME());
+consume(meta.filename);
