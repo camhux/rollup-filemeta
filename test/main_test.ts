@@ -82,7 +82,6 @@ consume('${expectedFilename}');`;
 
 Deno.test("two usages with custom base", async () => {
 	const base = path.resolve(import.meta.dirname ?? "./test");
-	console.debug(base);
 	const source = path.resolve(
 		base,
 		"fixtures/simple-both.js",
