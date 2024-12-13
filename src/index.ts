@@ -5,7 +5,7 @@ import MagicString from "magic-string";
 
 const virtualModule = "rollup-filemeta";
 
-type Macro = "filename" | "dirname";
+type Key = "filename" | "dirname";
 
 type Resolver = (id: string) => string;
 
@@ -22,7 +22,7 @@ const resolveFilename: Resolver = (id) =>
 const resolveDirname: Resolver = (id) =>
 	quote(id.slice(0, id.lastIndexOf("/") + 1));
 
-const resolvers: Record<Macro, Resolver> = {
+const resolvers: Record<Key, Resolver> = {
 	["filename"]: resolveFilename,
 	["dirname"]: resolveDirname,
 };
@@ -40,16 +40,17 @@ const plugin = (): Plugin => ({
 	},
 
 	transform(code, id) {
-		// TODO: blunt check; would a regex for a macro import path be worth it?
 		if (!code.includes(virtualModule)) {
 			return null;
 		}
 
 		const program = this.parse(code);
+
 		interface Usage {
 			node: MemberExpression,
-			key: Macro
+			key: Key
 		}
+
 		const state: {
 			declaration: ImportDeclaration | null;
 			localName: string;
@@ -97,7 +98,7 @@ const plugin = (): Plugin => ({
 						)
 					}
 
-					state.usages.push({node, key: property.name as Macro});
+					state.usages.push({node, key: property.name as Key});
 				},
 			},
 			undefined,
