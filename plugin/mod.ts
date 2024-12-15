@@ -8,36 +8,6 @@ const PLUGIN_VERSION = "0.1.0";
 
 const virtualModule = "rollup-filemeta";
 
-type Key = "filename" | "dirname";
-
-type Resolver = (id: string) => string;
-
-const quote = (s: string, style: "single" | "double" = "single"): string => {
-	const q = style === "single" ? `'` : `"`;
-	return q + s + q;
-};
-
-// TODO: add support for custom or truncated bases.
-// We can use Vite's/Rollup's interpolated __dirname in this file to help set the base,
-// which will be set based on the location of the consuming project's config.
-const resolveFilename: Resolver = (id) => quote(id);
-const resolveDirname: Resolver = (id) =>
-	quote(id.slice(0, id.lastIndexOf("/") + 1));
-
-const resolverWithBase: (base: string, res: Resolver) => Resolver =
-	(base, res) => (id) => {
-		id = id.replace(base, "");
-		if (id.charAt(0) === "/") {
-			id = id.slice(1);
-		}
-		return res(id);
-	};
-
-const resolvers: Record<Key, Resolver> = {
-	["filename"]: resolveFilename,
-	["dirname"]: resolveDirname,
-};
-
 interface PluginOptions {
 	base?: string;
 }
@@ -147,5 +117,32 @@ const plugin = (opts?: PluginOptions): Plugin => ({
 		return { code: newCode.toString(), map: newCode.generateMap() };
 	},
 });
+
+type Key = "filename" | "dirname";
+
+type Resolver = (id: string) => string;
+
+const quote = (s: string, style: "single" | "double" = "single"): string => {
+	const q = style === "single" ? `'` : `"`;
+	return q + s + q;
+};
+
+const resolveFilename: Resolver = (id) => quote(id);
+const resolveDirname: Resolver = (id) =>
+	quote(id.slice(0, id.lastIndexOf("/")));
+
+const resolverWithBase: (base: string, res: Resolver) => Resolver =
+	(base, res) => (id) => {
+		id = id.replace(base, "");
+		if (id.charAt(0) === "/") {
+			id = id.slice(1);
+		}
+		return res(id);
+	};
+
+const resolvers: Record<Key, Resolver> = {
+	["filename"]: resolveFilename,
+	["dirname"]: resolveDirname,
+};
 
 export default plugin;

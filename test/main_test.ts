@@ -1,6 +1,6 @@
 import * as path from "node:path";
 import { rollup } from "rollup";
-import plugin from "rollup-plugin-filemeta/index.ts";
+import plugin from "rollup-filemeta/plugin";
 import { assertEquals, assertIsError, assertRejects } from "@std/assert";
 
 Deno.test("simple filename transform", async () => {
@@ -38,7 +38,7 @@ Deno.test("simple dirname transform", async () => {
 
 	assertEquals(
 		code.output[0].code,
-		`console.log('${source.slice(0, source.lastIndexOf("/") + 1)}');`,
+		`console.log('${source.slice(0, source.lastIndexOf("/"))}');`,
 	);
 });
 
@@ -57,7 +57,7 @@ Deno.test("mixed and multiple usages", async () => {
 		compact: true,
 	});
 
-	const splitIx = source.lastIndexOf("/") + 1;
+	const splitIx = source.lastIndexOf("/");
 	const expectedDirname = source.slice(0, splitIx);
 	const expectedFilename = source;
 
@@ -96,7 +96,7 @@ Deno.test("two usages with custom base", async () => {
 		compact: true,
 	});
 
-	const expectedCode = `console.log('fixtures/');
+	const expectedCode = `console.log('fixtures');
 
 console.log('fixtures/simple-both.js');`;
 

@@ -4,8 +4,16 @@
 	},
 	"imports": {
 		"@std/assert": "jsr:@std/assert@1",
-		"rollup-plugin-filemeta/": "./src/",
-		"rollup-filemeta": "./filemeta.d.ts"
+		"acorn": "npm:acorn@^8.14.0",
+		"acorn-walk": "npm:acorn-walk@^8.3.4",
+		"magic-string": "npm:magic-string@^0.30.15",
+		"rollup": "npm:rollup@^4.28.1",
+		"rollup-filemeta": "./mod.ts",
+		"rollup-filemeta/plugin": "./plugin/mod.ts"
+	},
+	"exports": {
+		".": "./mod.ts",
+		"./plugin": "./plugin/mod.ts"
 	},
 	"compilerOptions": {
 		"strict": true,
