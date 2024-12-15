@@ -1,5 +1,10 @@
 {
 	"editor.formatOnSave": true,
 	"deno.enable": true,
-	"deno.lint": true
+	"deno.lint": true,
+	"files.exclude": {
+		"**/.git": true,
+		"**/.DS_Store": true,
+		"node_modules": true
+	}
 }
