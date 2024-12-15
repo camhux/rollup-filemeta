@@ -3,7 +3,7 @@ import type { Plugin } from "rollup";
 import type { Identifier, ImportDeclaration, MemberExpression } from "acorn";
 import MagicString from "magic-string";
 
-const PLUGIN_NAME = "rollup-plugin-filemeta";
+const PLUGIN_NAME = "filemeta";
 const PLUGIN_VERSION = "0.1.0";
 
 const virtualModule = "rollup-filemeta";
