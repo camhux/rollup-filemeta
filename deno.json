@@ -1,4 +1,11 @@
 {
+	"name": "@ccm/rollup-filemeta",
+	"version": "0.1.0",
+	"license": "MIT",
+	"exports": {
+		".": "./mod.ts",
+		"./plugin": "./plugin/mod.ts"
+	},
 	"tasks": {
 		"test": "deno test test/main-test.ts"
 	},
@@ -10,10 +17,6 @@
 		"rollup": "npm:rollup@^4.28.1",
 		"rollup-filemeta": "./mod.ts",
 		"rollup-filemeta/plugin": "./plugin/mod.ts"
-	},
-	"exports": {
-		".": "./mod.ts",
-		"./plugin": "./plugin/mod.ts"
 	},
 	"compilerOptions": {
 		"strict": true,
