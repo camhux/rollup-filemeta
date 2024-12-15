@@ -87,7 +87,7 @@ const plugin = (opts?: PluginOptions): Plugin => ({
 							["filename", "dirname"].includes(property.name))
 					) {
 						error(
-							`rollup-plugin-filemeta: unexpected access on virtual module export.` +
+							`${PLUGIN_NAME}: unexpected access on virtual module export.` +
 								`Please ensure you only access the default export object with one of the expected identifiers ("filename", "dirname").`,
 						);
 					}

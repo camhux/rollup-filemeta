@@ -1,4 +1,4 @@
-# rollup-plugin-filemeta
+# rollup-filemeta
 A small Rollup/Vite plugin that allows bundled modules to access the filename and dirname of the original source module.
 
 ## Overview
@@ -6,18 +6,26 @@ ECMAScript modules have access to an `import.meta` object, which allows them to 
 
 If a module is fed through a bundler, however, `import.meta.url` will reflect the _bundle's_ location at runtime. There's no dynamic mechanism for a bundled module to refer to its original location relative to other modules in the source project.
 
-`rollup-plugin-filemeta` seeks to provide this mechanism to Rollup bundles by interpolating a local module's `id` value into its source code at build time.
+`rollup-filemeta` seeks to provide this mechanism to Rollup bundles by interpolating a local module's `id` value into its source code at build time.
 
 ## Usage
 
 ### Installing the plugin
-Add `rollup-plugin-filemeta` to your Rollup or Vite configuration in the [standard way](https://rollupjs.org/tutorial/#using-plugins):
+The Rollup plugin is exported as a module from`rollup-filemeta/plugin`. Add `rollup-filemeta/plugin` to your Rollup or Vite configuration in the [standard way](https://rollupjs.org/tutorial/#using-plugins):
+
+Deno:
 ```console
-$ npm install --dev rollup-plugin-filemeta
+$ deno add rollup-filemeta
 ```
+
+npm/Yarn/pnpm/etc. should use the `jsr` compatibility layer:
+```console
+$ npx jsr -D rollup-filemeta
+```
+
 ```ts
 // rollup.config.mjs
-import filemeta from "rollup-plugin-filemeta";
+import filemeta from "rollup-filemeta/plugin";
 
 export default {
     // ... other bundle configuration
