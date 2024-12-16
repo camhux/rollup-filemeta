@@ -7,6 +7,9 @@
  * @module
  */
 
+// TODO: Should we throw an error if this module is evaluated (indicating
+// that it weren't properly transformed and erased by Rollup?)
+
 interface Filemeta {
 	readonly filename: string;
 	readonly dirname: string;
