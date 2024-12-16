@@ -6,6 +6,9 @@
 		".": "./mod.ts",
 		"./plugin": "./plugin/mod.ts"
 	},
+	"publish": {
+		"include": ["LICENSE", "README.md", "mod.ts", "plugin/mod.ts"]
+	},
 	"tasks": {
 		"test": "deno test test/main-test.ts"
 	},
